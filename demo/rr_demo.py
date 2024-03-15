@@ -19,6 +19,12 @@ for simultaneous execution
 
 """
 
+# Add parent directory to Python path
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
 import rossros as rr
 import logging
 import time

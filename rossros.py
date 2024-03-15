@@ -49,7 +49,7 @@ def ensureTuple(value):
     """
     Function that wraps an input value in a tuple if it is not already a tuple
     """
-    
+
     if isinstance(value, tuple):
         value_tuple = value
     else:
@@ -93,17 +93,17 @@ class ConsumerProducer:
 
             # Check if the loop should terminate
             # termination_value = self.termination_buses[0].get_message(self.name)
-            if self.checkTerminationbuses():
+            if self.checkTerminationBuses():
                 break
 
             # Collect all of the values from the input buses into a list
-            input_values = self.collectbusesToValues(self.input_buses)
+            input_values = self.collectBusesToValues(self.input_buses)
 
             # Get the output value or tuple of values corresponding to the inputs
             output_values = self.consumer_producer_function(*input_values)
 
             # Deal the values into the output buses
-            self.dealValuesTobuses(output_values, self.output_buses)
+            self.dealValuesToBuses(output_values, self.output_buses)
 
             # Pause for set amount of time
             time.sleep(self.delay)
@@ -113,7 +113,7 @@ class ConsumerProducer:
     @log_on_start(DEBUG, "{self.name:s}: Starting collecting bus values into list")
     @log_on_error(DEBUG, "{self.name:s}: Encountered an error while collecting bus values")
     @log_on_end(DEBUG, "{self.name:s}: Finished collecting bus values")
-    def collectbusesToValues(self, buses):
+    def collectBusesToValues(self, buses):
 
         # Wrap buses in a tuple if it isn't one already
         buses = ensureTuple(buses)
@@ -132,7 +132,7 @@ class ConsumerProducer:
     @log_on_start(DEBUG, "{self.name:s}: Starting dealing values into buses")
     @log_on_error(DEBUG, "{self.name:s}: Encountered an error while dealing values into buses")
     @log_on_end(DEBUG, "{self.name:s}: Finished dealing values into buses")
-    def dealValuesTobuses(self, values, buses):
+    def dealValuesToBuses(self, values, buses):
 
         # Wrap buses in a tuple if it isn't one already
         buses = ensureTuple(buses)
@@ -160,10 +160,10 @@ class ConsumerProducer:
     @log_on_start(DEBUG, "{self.name:s}: Starting to check termination buses")
     @log_on_error(DEBUG, "{self.name:s}: Encountered an error while checking termination buses")
     @log_on_end(DEBUG, "{self.name:s}: Finished checking termination buses")
-    def checkTerminationbuses(self):
+    def checkTerminationBuses(self):
 
         # Look at all of the termination buses
-        termination_bus_values = self.collectbusesToValues(self.termination_buses)
+        termination_bus_values = self.collectBusesToValues(self.termination_buses)
 
         # If any of the termination buses have triggered (gone true or non-negative), signal the loop to end
         for tbv in termination_bus_values:
