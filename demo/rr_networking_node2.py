@@ -11,19 +11,20 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+import asyncio
+import logging
+import math
+import time
+
 import rossros_asyncio as rr
 import rossros_networking as rrn
-import logging
-import time
-import math
-import asyncio
 
 logging.getLogger().setLevel(logging.INFO)
 
 async def node2():
 
     # Start second node, bootstrapping from first node
-    node = await rrn.start_node(5001, ('localhost', 5000))
+    node = rrn.Client('127.0.0.1', 9800)
 
 
     # This function multiplies two inputs together

@@ -1,9 +1,10 @@
 #! /usr/bin/python3
 import concurrent.futures
-import time
 import logging
+import time
+
+from logdecorator import log_on_end, log_on_error, log_on_start
 from readerwriterlock import rwlock
-from logdecorator import log_on_start, log_on_end, log_on_error
 
 DEBUG = logging.DEBUG
 logging_format = "%(asctime)s: %(message)s"

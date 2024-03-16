@@ -25,10 +25,11 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-import rossros as rr
 import logging
-import time
 import math
+import time
+
+import rossros as rr
 
 # logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger().setLevel(logging.INFO)

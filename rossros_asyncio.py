@@ -34,13 +34,14 @@ task-switching architecture.
 Third, it replaces the runConcurrently function with a version that uses the asyncio paradigm.
 """
 
-import rossros as rr
 import asyncio
 import concurrent.futures
-import time
 import logging
+import time
+
+import rossros as rr
+from logdecorator import log_on_end, log_on_error, log_on_start
 from readerwriterlock import rwlock
-from logdecorator import log_on_start, log_on_end, log_on_error
 
 DEBUG = logging.DEBUG
 logging_format = "%(asctime)s: %(message)s"

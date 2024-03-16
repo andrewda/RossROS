@@ -1,24 +1,80 @@
-from kademlia.network import Server
 import asyncio
+import json
 import logging
+import socket
+import threading
+from typing import Any, Tuple
 
 
-# Turn down verbosity of kademlia
-kademlia_logger = logging.getLogger('kademlia')
-kademlia_logger.setLevel(logging.ERROR)
+class Server:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.state = {}
+
+    async def handle_client(self, reader, writer):
+        while True:
+            data = await reader.read(1024)
+            if not data:
+                break
+            command = json.loads(data.decode('utf-8'))
+
+            if command['action'] == 'set':
+                self.set(command['key'], command['value'])
+                response = {'status': 'OK'}
+            elif command['action'] == 'get':
+                value = await self.get(command['key'])
+                response = {'status': 'OK', 'value': value}
+            else:
+                response = {'status': 'ERROR', 'message': 'Unknown command'}
 
 
-async def start_node(port, bootstrap_node=None):
-  server = Server()
-  await server.listen(port)
-  if bootstrap_node:
-      await server.bootstrap([bootstrap_node])
-  return server
+            writer.write(json.dumps(response).encode('utf-8'))
+            await writer.drain()
+        writer.close()
+
+    async def set(self, key, value):
+        self.state[key] = value
+
+    async def get(self, key):
+        return self.state.get(key, None)
+
+    async def run(self):
+        server = await asyncio.start_server(
+            self.handle_client, self.host, self.port)
+        addr = server.sockets[0].getsockname()
+        print(f'Serving on {addr}')
+
+        async with server:
+            await server.serve_forever()
+
+class Client:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+
+    async def send_command(self, command):
+        reader, writer = await asyncio.open_connection(self.host, self.port)
+        writer.write(json.dumps(command).encode('utf-8'))
+        await writer.drain()
+        response = await reader.read(1024)
+        writer.close()
+        await writer.wait_closed()
+        return json.loads(response.decode('utf-8'))
+
+    async def set(self, key, value):
+        command = {'action': 'set', 'key': key, 'value': value}
+        await self.send_command(command)
+
+    async def get(self, key):
+        command = {'action': 'get', 'key': key}
+        response = await self.send_command(command)
+        return response.get('value')
 
 
 class NetBus:
     """
-    Bus class using DHT for state storage
+    Bus class using network for state storage
     """
 
     def __init__(self, server, name, initial_message=None):
@@ -30,11 +86,8 @@ class NetBus:
             loop.create_task(self.set_message(initial_message))
 
     async def get_message(self, _name=None):
-        # print(f'\t{self.name} - getting message')
         message = await self.server.get(self.name)
-        # print(f'\t{self.name} - retrieved message: {message}')
         return message
 
     async def set_message(self, message, _name=None):
-        # print(f'\t{self.name} - setting message to {message}')
         await self.server.set(self.name, message)
